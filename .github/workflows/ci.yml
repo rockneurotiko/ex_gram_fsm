@@ -22,16 +22,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - elixir: "1.19"
+            otp: "28"
+            linters: true
           - elixir: "1.18"
             otp: "27"
-            linters: true
+            linters: false
+          - elixir: "1.17"
+            otp: "27"
+            linters: false
           - elixir: "1.16"
             otp: "26"
             linters: false
-          - elixir: "1.14"
-            otp: "25"
-            linters: false
-
     steps:
       - uses: actions/checkout@v4
 
