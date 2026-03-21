@@ -19,22 +19,29 @@ defmodule ExGram.FSM.Validator do
     if states_mod != nil &&
          Code.ensure_loaded?(states_mod) &&
          function_exported?(states_mod, :transitions, 0) do
-      transitions = states_mod.transitions()
+      check_against_transitions(transition_calls, states_mod, env)
+    end
+  end
 
-      if transitions != :any do
-        for {from, to} <- transition_calls do
-          allowed = Map.get(transitions, from, [])
+  defp check_against_transitions(transition_calls, states_mod, env) do
+    transitions = states_mod.transitions()
 
-          if to not in allowed do
-            IO.warn(
-              "ExGram.FSM: transition from :#{from} to :#{to} is not declared " <>
-                "in #{inspect(states_mod)}. Declared transitions from :#{from}: " <>
-                "#{inspect(allowed)}",
-              Macro.Env.stacktrace(env)
-            )
-          end
-        end
+    if transitions != :any do
+      for {from, to} <- transition_calls do
+        allowed = Map.get(transitions, from, [])
+        warn_if_invalid(from, to, allowed, states_mod, env)
       end
+    end
+  end
+
+  defp warn_if_invalid(from, to, allowed, states_mod, env) do
+    if to not in allowed do
+      IO.warn(
+        "ExGram.FSM: transition from :#{from} to :#{to} is not declared " <>
+          "in #{inspect(states_mod)}. Declared transitions from :#{from}: " <>
+          "#{inspect(allowed)}",
+        Macro.Env.stacktrace(env)
+      )
     end
   end
 end

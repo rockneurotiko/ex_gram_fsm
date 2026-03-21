@@ -102,23 +102,10 @@ defmodule ExGram.FSM.States do
 
     transitions_result =
       if has_transitions do
-        transitions_map =
-          for {name, to} <- declared, to != nil, into: %{} do
-            # Warn about undeclared targets
-            for target <- to do
-              if target not in unique_names do
-                IO.warn(
-                  "ExGram.FSM.States: state :#{target} referenced in `to:` for " <>
-                    ":#{name} but not declared as a state in #{inspect(env.module)}",
-                  Macro.Env.stacktrace(env)
-                )
-              end
-            end
-
-            {name, to}
-          end
-
-        transitions_map
+        for {name, to} <- declared, to != nil, into: %{} do
+          check_targets(to, name, unique_names, env)
+          {name, to}
+        end
       else
         :any
       end
@@ -129,6 +116,20 @@ defmodule ExGram.FSM.States do
 
       @impl true
       def transitions, do: unquote(Macro.escape(transitions_result))
+    end
+  end
+
+  defp check_targets(targets, from_name, unique_names, env) do
+    for target <- targets, do: warn_undeclared_target(target, from_name, unique_names, env)
+  end
+
+  defp warn_undeclared_target(target, from_name, unique_names, env) do
+    if target not in unique_names do
+      IO.warn(
+        "ExGram.FSM.States: state :#{target} referenced in `to:` for " <>
+          ":#{from_name} but not declared as a state in #{inspect(env.module)}",
+        Macro.Env.stacktrace(env)
+      )
     end
   end
 

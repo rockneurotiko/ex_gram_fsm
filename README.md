@@ -85,16 +85,18 @@ defmodule MyBot do
   # Route by flow + state
   scope do
     filter :fsm_flow, :registration
-    filter :fsm_state, :get_name
-    filter :text
-    handle &MyBot.Handlers.got_name/1
-  end
 
-  scope do
-    filter :fsm_flow, :registration
-    filter :fsm_state, :get_email
-    filter :text
-    handle &MyBot.Handlers.got_email/1
+    scope do
+      filter :fsm_state, :get_name
+      filter :text
+      handle &MyBot.Handlers.got_name/1
+    end
+
+    scope do
+      filter :fsm_state, :get_email
+      filter :text
+      handle &MyBot.Handlers.got_email/1
+    end
   end
 
   scope do
