@@ -70,10 +70,10 @@ defmodule ExGram.FSM.States do
     quote do
       @behaviour ExGram.FSM.States
 
+      import ExGram.FSM.States, only: [defstates: 1, state: 1, state: 2]
+
       # Accumulate {state_name, to_list_or_nil} entries
       Module.register_attribute(__MODULE__, :fsm_declared_states, accumulate: true)
-
-      import ExGram.FSM.States, only: [defstates: 1, state: 1, state: 2]
 
       @before_compile ExGram.FSM.States
     end
@@ -106,7 +106,7 @@ defmodule ExGram.FSM.States do
           for {name, to} <- declared, to != nil, into: %{} do
             # Warn about undeclared targets
             for target <- to do
-              unless target in unique_names do
+              if target not in unique_names do
                 IO.warn(
                   "ExGram.FSM.States: state :#{target} referenced in `to:` for " <>
                     ":#{name} but not declared as a state in #{inspect(env.module)}",

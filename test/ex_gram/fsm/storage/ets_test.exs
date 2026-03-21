@@ -1,8 +1,8 @@
 defmodule ExGram.FSM.Storage.ETSTest do
   use ExUnit.Case, async: false
 
-  alias ExGram.FSM.Storage.ETS
   alias ExGram.FSM.State
+  alias ExGram.FSM.Storage.ETS
 
   # Use a unique table per test run to avoid cross-test contamination
   # Since async: false and ETS uses named table, we must clean up between tests

@@ -63,14 +63,14 @@ defmodule ExGram.FSM.Flow do
   defmacro __using__(opts) do
     name = Keyword.get(opts, :name)
 
-    unless name do
+    if !name do
       raise CompileError,
         description:
           "ExGram.FSM.Flow: `:name` option is required. " <>
             "Use `use ExGram.FSM.Flow, name: :my_flow_name`."
     end
 
-    unless is_atom(name) do
+    if !is_atom(name) do
       raise CompileError,
         description: "ExGram.FSM.Flow: `:name` must be an atom, got #{inspect(name)}"
     end
@@ -78,10 +78,10 @@ defmodule ExGram.FSM.Flow do
     quote do
       @behaviour ExGram.FSM.Flow
 
+      import ExGram.FSM.States, only: [defstates: 1, state: 1, state: 2]
+
       # Accumulate {state_name, to_list_or_nil} entries (same as ExGram.FSM.States)
       Module.register_attribute(__MODULE__, :fsm_declared_states, accumulate: true)
-
-      import ExGram.FSM.States, only: [defstates: 1, state: 1, state: 2]
 
       @before_compile ExGram.FSM.Flow
 
@@ -124,7 +124,7 @@ defmodule ExGram.FSM.Flow do
         for {name, to} <- declared, to != nil, into: %{} do
           # Warn about undeclared targets
           for target <- to do
-            unless target in unique_names do
+            if target not in unique_names do
               IO.warn(
                 "ExGram.FSM.Flow: state :#{target} referenced in `to:` for " <>
                   ":#{name} but not declared as a state in #{inspect(env.module)}",

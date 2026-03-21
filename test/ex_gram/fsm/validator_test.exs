@@ -6,6 +6,7 @@ defmodule ExGram.FSM.ValidatorTest do
   # A states module with strict transitions for testing
   defmodule StrictStates do
     @behaviour ExGram.FSM.States
+
     @impl true
     def states, do: [:idle, :get_name, :confirm]
     @impl true
@@ -21,6 +22,7 @@ defmodule ExGram.FSM.ValidatorTest do
   # A states module that allows any transitions
   defmodule AnyStates do
     @behaviour ExGram.FSM.States
+
     @impl true
     def states, do: [:a, :b]
     @impl true

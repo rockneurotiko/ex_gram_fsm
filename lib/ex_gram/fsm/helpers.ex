@@ -61,7 +61,7 @@ defmodule ExGram.FSM.Helpers do
     current_flow = get_flow(context)
     flows_map = context.extra[:fsm_flows] || %{}
 
-    unless Map.has_key?(flows_map, flow_name) do
+    if !Map.has_key?(flows_map, flow_name) do
       raise ArgumentError,
             "ExGram.FSM: flow #{inspect(flow_name)} is not registered. " <>
               "Add it to `use ExGram.FSM, flows: [...]`."
@@ -190,7 +190,7 @@ defmodule ExGram.FSM.Helpers do
   def set_state(context, flow_name, new_state) do
     flows_map = context.extra[:fsm_flows] || %{}
 
-    unless Map.has_key?(flows_map, flow_name) do
+    if !Map.has_key?(flows_map, flow_name) do
       raise ArgumentError,
             "ExGram.FSM: flow #{inspect(flow_name)} is not registered. " <>
               "Add it to `use ExGram.FSM, flows: [...]`."
@@ -236,7 +236,7 @@ defmodule ExGram.FSM.Helpers do
     flows_map = context.extra[:fsm_flows] || %{}
 
     # Look up the flow module for transition validation
-    states_mod = if flow, do: Map.get(flows_map, flow), else: nil
+    states_mod = if flow, do: Map.get(flows_map, flow)
 
     if valid_transition?(states_mod, from, to) do
       do_set_state(context, to)
@@ -282,9 +282,7 @@ defmodule ExGram.FSM.Helpers do
         {:error, reason} ->
           require Logger
 
-          Logger.error(
-            "ExGram.FSM storage write failed (update_data/set_state): #{inspect(reason)}"
-          )
+          Logger.error("ExGram.FSM storage write failed (update_data/set_state): #{inspect(reason)}")
       end
     end
 
@@ -322,6 +320,7 @@ defmodule ExGram.FSM.Helpers do
 
         {:error, reason} ->
           require Logger
+
           Logger.error("ExGram.FSM storage write failed (clear_flow): #{inspect(reason)}")
       end
     end
@@ -355,6 +354,7 @@ defmodule ExGram.FSM.Helpers do
 
         {:error, reason} ->
           require Logger
+
           Logger.error("ExGram.FSM storage write failed (set_state): #{inspect(reason)}")
       end
     end
@@ -391,9 +391,7 @@ defmodule ExGram.FSM.Helpers do
       :log ->
         require Logger
 
-        Logger.warning(
-          "ExGram.FSM: invalid transition from #{inspect(from)} to #{inspect(to)}, ignoring"
-        )
+        Logger.warning("ExGram.FSM: invalid transition from #{inspect(from)} to #{inspect(to)}, ignoring")
 
         context
 

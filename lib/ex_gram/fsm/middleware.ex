@@ -96,7 +96,7 @@ defmodule ExGram.FSM.Middleware do
   defp ensure_storage_init(storage, opts) do
     pt_key = {__MODULE__, :init, storage}
 
-    unless :persistent_term.get(pt_key, false) do
+    if !:persistent_term.get(pt_key, false) do
       storage.init(opts)
       :persistent_term.put(pt_key, true)
     end

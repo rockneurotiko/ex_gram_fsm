@@ -25,7 +25,7 @@ defmodule ExGram.FSM.Validator do
         for {from, to} <- transition_calls do
           allowed = Map.get(transitions, from, [])
 
-          unless to in allowed do
+          if to not in allowed do
             IO.warn(
               "ExGram.FSM: transition from :#{from} to :#{to} is not declared " <>
                 "in #{inspect(states_mod)}. Declared transitions from :#{from}: " <>

@@ -1,7 +1,7 @@
 defmodule ExGram.FSM.KeyTest do
   use ExUnit.Case, async: true
 
-  alias ExGram.FSM.Key.{ChatUser, User, Chat, ChatTopic, ChatTopicUser}
+  alias ExGram.FSM.Key.{Chat, ChatTopic, ChatTopicUser, ChatUser, User}
 
   # --- Shared helpers ---
 

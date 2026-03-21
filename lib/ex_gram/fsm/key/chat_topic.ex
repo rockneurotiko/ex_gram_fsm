@@ -35,13 +35,10 @@ defmodule ExGram.FSM.Key.ChatTopic do
     end
   end
 
-  defp extract_thread_id(%{message: %{message_thread_id: thread_id}})
-       when not is_nil(thread_id),
-       do: thread_id
+  defp extract_thread_id(%{message: %{message_thread_id: thread_id}}) when not is_nil(thread_id), do: thread_id
 
-  defp extract_thread_id(%{callback_query: %{message: %{message_thread_id: thread_id}}})
-       when not is_nil(thread_id),
-       do: thread_id
+  defp extract_thread_id(%{callback_query: %{message: %{message_thread_id: thread_id}}}) when not is_nil(thread_id),
+    do: thread_id
 
   defp extract_thread_id(_), do: nil
 end

@@ -83,30 +83,21 @@ defmodule ExGram.FSM.DispatchTest do
     end
 
     # Registration flow handlers
-    def handle(
-          {:text, name, _},
-          %{extra: %{fsm: %ExGram.FSM.State{flow: :registration, state: :get_name}}} = context
-        ) do
+    def handle({:text, name, _}, %{extra: %{fsm: %ExGram.FSM.State{flow: :registration, state: :get_name}}} = context) do
       context
       |> update_data(%{name: name})
       |> transition(:get_email)
       |> answer("Got it, #{name}! What's your email?")
     end
 
-    def handle(
-          {:text, email, _},
-          %{extra: %{fsm: %ExGram.FSM.State{flow: :registration, state: :get_email}}} = context
-        ) do
+    def handle({:text, email, _}, %{extra: %{fsm: %ExGram.FSM.State{flow: :registration, state: :get_email}}} = context) do
       context
       |> update_data(%{email: email})
       |> transition(:confirm)
       |> answer("Please confirm.")
     end
 
-    def handle(
-          {:text, "yes", _},
-          %{extra: %{fsm: %ExGram.FSM.State{flow: :registration, state: :confirm}}} = context
-        ) do
+    def handle({:text, "yes", _}, %{extra: %{fsm: %ExGram.FSM.State{flow: :registration, state: :confirm}}} = context) do
       data = get_data(context)
 
       context

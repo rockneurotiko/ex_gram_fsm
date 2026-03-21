@@ -113,8 +113,9 @@ defmodule ExGram.FSM do
     ]
 
     quote do
+      import ExGram.FSM.Helpers
       # Verify that use ExGram.Bot was called first (checks for @middlewares attribute)
-      unless Module.has_attribute?(__MODULE__, :middlewares) do
+      if !Module.has_attribute?(__MODULE__, :middlewares) do
         raise CompileError,
           description:
             "ExGram.FSM: `use ExGram.FSM` must be called after `use ExGram.Bot`. " <>
@@ -130,13 +131,12 @@ defmodule ExGram.FSM do
       middleware(ExGram.FSM.Middleware, unquote(middleware_opts))
 
       # Import runtime helpers
-      import ExGram.FSM.Helpers
 
       # Auto-register :fsm_state and :fsm_flow filter aliases if ExGram.Router is in use
       if Module.has_attribute?(__MODULE__, :__exgram_filter_aliases__) do
         existing = Module.get_attribute(__MODULE__, :__exgram_filter_aliases__)
 
-        unless Keyword.has_key?(existing, :fsm_state) do
+        if !Keyword.has_key?(existing, :fsm_state) do
           Module.put_attribute(
             __MODULE__,
             :__exgram_filter_aliases__,
@@ -146,7 +146,7 @@ defmodule ExGram.FSM do
 
         existing2 = Module.get_attribute(__MODULE__, :__exgram_filter_aliases__)
 
-        unless Keyword.has_key?(existing2, :fsm_flow) do
+        if !Keyword.has_key?(existing2, :fsm_flow) do
           Module.put_attribute(
             __MODULE__,
             :__exgram_filter_aliases__,
