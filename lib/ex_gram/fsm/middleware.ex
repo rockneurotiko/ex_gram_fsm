@@ -43,11 +43,11 @@ defmodule ExGram.FSM.Middleware do
     storage = Keyword.fetch!(opts, :storage)
     key_mod = Keyword.get(opts, :key, ExGram.FSM.Key.ChatUser)
     flows_map = build_flows_map(opts)
+    bot_name = cnt.name
 
     case key_mod.extract(cnt) do
       {:ok, key} ->
-        ensure_storage_init(storage, opts)
-        fsm_state = storage.get_state(key) || %State{}
+        fsm_state = storage.get_state(bot_name, key) || %State{}
 
         cnt
         |> ExGram.Middleware.add_extra(:fsm, fsm_state)
@@ -90,17 +90,5 @@ defmodule ExGram.FSM.Middleware do
       true ->
         %{}
     end
-  end
-
-  @spec ensure_storage_init(module(), keyword()) :: :ok
-  defp ensure_storage_init(storage, opts) do
-    pt_key = {__MODULE__, :init, storage}
-
-    if !:persistent_term.get(pt_key, false) do
-      storage.init(opts)
-      :persistent_term.put(pt_key, true)
-    end
-
-    :ok
   end
 end

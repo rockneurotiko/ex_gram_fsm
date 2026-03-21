@@ -123,24 +123,15 @@ defmodule ExGram.FSM.DispatchTest do
   # --- Test setup ---
 
   setup context do
-    :persistent_term.erase({ExGram.FSM.Middleware, :init, ETS})
-    ETS.init([])
-
     {bot_name, _} = ExGram.Test.start_bot(context, DispatchBot)
 
     ExGram.Test.stub(:send_message, %{message_id: 1, chat: %{id: 0}, text: ""})
 
     on_exit(fn ->
       try do
-        :ets.delete_all_objects(:ex_gram_fsm_state)
+        :ets.delete_all_objects(ETS.table_name(:dispatch_test_bot))
       rescue
         ArgumentError -> :ok
-      end
-
-      try do
-        :persistent_term.erase({ExGram.FSM.Middleware, :init, ETS})
-      rescue
-        _ -> :ok
       end
     end)
 

@@ -127,6 +127,9 @@ defmodule ExGram.FSM do
       @fsm_flow_modules unquote(flow_mods)
       @fsm_on_invalid_transition unquote(on_invalid)
 
+      # Auto-register the FSM storage init hook (runs at bot startup)
+      on_bot_init(ExGram.FSM.StorageInit, storage: unquote(storage))
+
       # Auto-register the FSM middleware
       middleware(ExGram.FSM.Middleware, unquote(middleware_opts))
 

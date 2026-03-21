@@ -5,12 +5,14 @@ defmodule ExGram.FSM.HelpersTest do
 
   alias ExGram.FSM.{State, Storage.ETS, TransitionError}
 
+  @bot :helpers_test_bot
+
   setup do
-    ETS.init([])
+    ETS.init(@bot, [])
 
     on_exit(fn ->
       try do
-        :ets.delete_all_objects(:ex_gram_fsm_state)
+        :ets.delete_all_objects(ETS.table_name(@bot))
       rescue
         ArgumentError -> :ok
       end
@@ -85,6 +87,7 @@ defmodule ExGram.FSM.HelpersTest do
   # Build a minimal context for testing helpers
   defp build_context(flow, state \\ nil, data \\ %{}, opts \\ []) do
     %ExGram.Cnt{
+      name: @bot,
       extra: %{
         fsm: %State{flow: flow, state: state, data: data},
         fsm_key: Keyword.get(opts, :key, {123, 456}),
@@ -97,7 +100,7 @@ defmodule ExGram.FSM.HelpersTest do
 
   # Build a context with no FSM info (middleware didn't run)
   defp bare_context do
-    %ExGram.Cnt{extra: %{}}
+    %ExGram.Cnt{name: @bot, extra: %{}}
   end
 
   # --- get_flow/1 ---
@@ -195,7 +198,7 @@ defmodule ExGram.FSM.HelpersTest do
     test "persists new flow + state to storage" do
       ctx = build_context(nil)
       start_flow(ctx, :registration)
-      stored = ETS.get_state({123, 456})
+      stored = ETS.get_state(@bot, {123, 456})
       assert stored.flow == :registration
       assert stored.state == :get_name
     end
@@ -252,7 +255,7 @@ defmodule ExGram.FSM.HelpersTest do
     test "writes to storage" do
       ctx = build_context(:registration, :get_name)
       set_state(ctx, :get_email)
-      stored = ETS.get_state({123, 456})
+      stored = ETS.get_state(@bot, {123, 456})
       assert stored.state == :get_email
     end
 
@@ -311,7 +314,7 @@ defmodule ExGram.FSM.HelpersTest do
     test "writes new flow + state to storage" do
       ctx = build_context(:registration, :get_name)
       set_state(ctx, :settings, :choose_language)
-      stored = ETS.get_state({123, 456})
+      stored = ETS.get_state(@bot, {123, 456})
       assert stored.flow == :settings
       assert stored.state == :choose_language
     end
@@ -330,6 +333,7 @@ defmodule ExGram.FSM.HelpersTest do
   describe "transition/2" do
     test "sets state when no flow is active and flows map is empty" do
       ctx = %ExGram.Cnt{
+        name: @bot,
         extra: %{
           fsm: %State{flow: nil, state: nil, data: %{}},
           fsm_key: {123, 456},
@@ -359,7 +363,7 @@ defmodule ExGram.FSM.HelpersTest do
     test "writes to storage on valid transition" do
       ctx = build_context(:registration, :get_name)
       transition(ctx, :get_email)
-      stored = ETS.get_state({123, 456})
+      stored = ETS.get_state(@bot, {123, 456})
       assert stored.state == :get_email
     end
 
@@ -443,7 +447,7 @@ defmodule ExGram.FSM.HelpersTest do
     test "persists data to storage" do
       ctx = build_context(:registration, :get_name, %{name: "Alice"})
       update_data(ctx, %{email: "alice@example.com"})
-      stored = ETS.get_state({123, 456})
+      stored = ETS.get_state(@bot, {123, 456})
       assert stored.data == %{name: "Alice", email: "alice@example.com"}
     end
 
@@ -467,10 +471,10 @@ defmodule ExGram.FSM.HelpersTest do
     end
 
     test "removes entry from storage" do
-      ETS.set_state({123, 456}, %State{flow: :registration, state: :confirm, data: %{x: 1}})
+      ETS.set_state(@bot, {123, 456}, %State{flow: :registration, state: :confirm, data: %{x: 1}})
       ctx = build_context(:registration, :confirm, %{x: 1})
       clear_flow(ctx)
-      assert ETS.get_state({123, 456}) == nil
+      assert ETS.get_state(@bot, {123, 456}) == nil
     end
 
     test "is safe to call when no flow is active" do

@@ -3,22 +3,16 @@ defmodule ExGram.FSM.MiddlewareTest do
 
   alias ExGram.FSM.{Middleware, State, Storage.ETS}
 
+  @bot :middleware_test_bot
+
   setup do
-    # Reset persistent_term for middleware init key to allow re-init in tests
-    :persistent_term.erase({ExGram.FSM.Middleware, :init, ETS})
-    ETS.init([])
+    ETS.init(@bot, [])
 
     on_exit(fn ->
       try do
-        :ets.delete_all_objects(:ex_gram_fsm_state)
+        :ets.delete_all_objects(ETS.table_name(@bot))
       rescue
         ArgumentError -> :ok
-      end
-
-      try do
-        :persistent_term.erase({ExGram.FSM.Middleware, :init, ETS})
-      rescue
-        _ -> :ok
       end
     end)
 
@@ -30,6 +24,7 @@ defmodule ExGram.FSM.MiddlewareTest do
   # Build various update types for testing key extraction
   defp build_message_cnt(user_id, chat_id) do
     %ExGram.Cnt{
+      name: @bot,
       extra: %{},
       update: %ExGram.Model.Update{
         update_id: 1,
@@ -50,6 +45,7 @@ defmodule ExGram.FSM.MiddlewareTest do
 
   defp build_inline_query_cnt(user_id) do
     %ExGram.Cnt{
+      name: @bot,
       extra: %{},
       update: %ExGram.Model.Update{
         update_id: 2,
@@ -69,6 +65,7 @@ defmodule ExGram.FSM.MiddlewareTest do
 
   defp build_channel_post_cnt do
     %ExGram.Cnt{
+      name: @bot,
       extra: %{},
       update: %ExGram.Model.Update{
         update_id: 3,
@@ -127,7 +124,7 @@ defmodule ExGram.FSM.MiddlewareTest do
   describe "call/2 - existing user" do
     test "loads state from storage" do
       stored = %State{flow: :registration, state: :get_name, data: %{name: "Alice"}}
-      ETS.set_state({1, 1}, stored)
+      ETS.set_state(@bot, {1, 1}, stored)
 
       cnt = build_message_cnt(1, 1)
       result = Middleware.call(cnt, @default_opts)

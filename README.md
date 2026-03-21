@@ -279,6 +279,12 @@ alias_filter ExGram.FSM.Filter.State, as: :fsm_state
 
 The default backend is `ExGram.FSM.Storage.ETS` (in-memory, single-node). **State is lost on restart.**
 
+Storage backends are **bot-scoped**: every callback receives `bot_name` as its first argument so that
+a single backend can serve multiple bots without key collisions. The ETS implementation creates one
+named table per bot (`:"ex_gram_fsm_{bot_name}"`). The storage is initialized automatically at bot
+startup via the `ExGram.FSM.StorageInit` `ExGram.BotInit` hook — `use ExGram.FSM` registers it for
+you.
+
 For production deployments, implement the `ExGram.FSM.Storage` behaviour:
 
 ```elixir
@@ -286,25 +292,25 @@ defmodule MyApp.RedisStorage do
   @behaviour ExGram.FSM.Storage
 
   @impl true
-  def init(opts), do: :ok
+  def init(bot_name, opts), do: :ok   # create connection / namespace for bot_name
 
   @impl true
-  def get_state(key), do: # read from Redis
+  def get_state(bot_name, key), do: # read from Redis using bot_name as key prefix
 
   @impl true
-  def set_state(key, %ExGram.FSM.State{} = state), do: # write to Redis
+  def set_state(bot_name, key, %ExGram.FSM.State{} = state), do: # write to Redis
 
   @impl true
-  def get_data(key), do: # read data portion from Redis
+  def get_data(bot_name, key), do: # read data portion from Redis
 
   @impl true
-  def set_data(key, data), do: # write data portion to Redis
+  def set_data(bot_name, key, data), do: # write data portion to Redis
 
   @impl true
-  def update_data(key, new_data), do: # merge and write to Redis
+  def update_data(bot_name, key, new_data), do: # merge and write to Redis
 
   @impl true
-  def clear(key), do: # delete from Redis
+  def clear(bot_name, key), do: # delete from Redis
 end
 ```
 

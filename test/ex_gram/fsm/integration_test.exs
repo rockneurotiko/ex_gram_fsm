@@ -111,27 +111,20 @@ defmodule ExGram.FSM.IntegrationTest do
   # --- Test setup ---
 
   setup do
-    :persistent_term.erase({ExGram.FSM.Middleware, :init, ETS})
-    ETS.init([])
+    ETS.init(:integration_test_bot, [])
 
     on_exit(fn ->
       try do
-        :ets.delete_all_objects(:ex_gram_fsm_state)
+        :ets.delete_all_objects(ETS.table_name(:integration_test_bot))
       rescue
         ArgumentError -> :ok
-      end
-
-      try do
-        :persistent_term.erase({ExGram.FSM.Middleware, :init, ETS})
-      rescue
-        _ -> :ok
       end
     end)
 
     :ok
   end
 
-  defp stored_state(key), do: ETS.get_state(key)
+  defp stored_state(key), do: ETS.get_state(:integration_test_bot, key)
 
   @flows_map %{
     registration: RegistrationFlow,

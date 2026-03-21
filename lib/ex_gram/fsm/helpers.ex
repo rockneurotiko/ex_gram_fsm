@@ -275,7 +275,7 @@ defmodule ExGram.FSM.Helpers do
     storage = context.extra[:fsm_storage]
 
     if key && storage do
-      case storage.set_state(key, new_fsm) do
+      case storage.set_state(context.name, key, new_fsm) do
         :ok ->
           :ok
 
@@ -314,7 +314,7 @@ defmodule ExGram.FSM.Helpers do
 
     # Clear from storage
     if key && storage do
-      case storage.clear(key) do
+      case storage.clear(context.name, key) do
         :ok ->
           :ok
 
@@ -348,7 +348,7 @@ defmodule ExGram.FSM.Helpers do
     storage = context.extra[:fsm_storage]
 
     if key && storage do
-      case storage.set_state(key, new_fsm_state) do
+      case storage.set_state(context.name, key, new_fsm_state) do
         :ok ->
           :ok
 
