@@ -24,57 +24,57 @@ defmodule ExGram.FSM.MiddlewareTest do
   # Build various update types for testing key extraction
   defp build_message_cnt(user_id, chat_id) do
     %ExGram.Cnt{
-      name: @bot,
       extra: %{},
+      name: @bot,
       update: %ExGram.Model.Update{
-        update_id: 1,
         message: %ExGram.Model.Message{
-          message_id: 1,
-          date: 0,
           chat: %ExGram.Model.Chat{id: chat_id, type: "private"},
+          date: 0,
           from: %ExGram.Model.User{
+            first_name: "Test",
             id: user_id,
-            is_bot: false,
-            first_name: "Test"
+            is_bot: false
           },
+          message_id: 1,
           text: "hello"
-        }
+        },
+        update_id: 1
       }
     }
   end
 
   defp build_inline_query_cnt(user_id) do
     %ExGram.Cnt{
-      name: @bot,
       extra: %{},
+      name: @bot,
       update: %ExGram.Model.Update{
-        update_id: 2,
         inline_query: %ExGram.Model.InlineQuery{
-          id: "iq1",
           from: %ExGram.Model.User{
+            first_name: "Test",
             id: user_id,
-            is_bot: false,
-            first_name: "Test"
+            is_bot: false
           },
-          query: "test",
-          offset: ""
-        }
+          id: "iq1",
+          offset: "",
+          query: "test"
+        },
+        update_id: 2
       }
     }
   end
 
   defp build_channel_post_cnt do
     %ExGram.Cnt{
-      name: @bot,
       extra: %{},
+      name: @bot,
       update: %ExGram.Model.Update{
-        update_id: 3,
         channel_post: %ExGram.Model.Message{
-          message_id: 1,
-          date: 0,
           chat: %ExGram.Model.Chat{id: -100, type: "channel"},
+          date: 0,
+          message_id: 1,
           text: "channel post"
-        }
+        },
+        update_id: 3
       }
     }
   end
@@ -123,7 +123,7 @@ defmodule ExGram.FSM.MiddlewareTest do
 
   describe "call/2 - existing user" do
     test "loads state from storage" do
-      stored = %State{flow: :registration, state: :get_name, data: %{name: "Alice"}}
+      stored = %State{data: %{name: "Alice"}, flow: :registration, state: :get_name}
       ETS.set_state(@bot, {1, 1}, stored)
 
       cnt = build_message_cnt(1, 1)

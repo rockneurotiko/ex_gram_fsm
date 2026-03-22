@@ -32,8 +32,8 @@ defmodule ExGram.FSM.TransitionError do
     msg = "invalid FSM transition from :#{from} to :#{to}"
 
     %__MODULE__{
-      message: msg,
       from: from,
+      message: msg,
       to: to
     }
   end

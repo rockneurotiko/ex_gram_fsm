@@ -12,9 +12,9 @@ defmodule ExGram.FSM.ValidatorTest do
     @impl true
     def transitions do
       %{
-        idle: [:get_name],
+        confirm: [:idle],
         get_name: [:confirm],
-        confirm: [:idle]
+        idle: [:get_name]
       }
     end
   end

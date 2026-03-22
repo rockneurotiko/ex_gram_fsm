@@ -7,14 +7,14 @@ defmodule ExGram.FSM.Filter.FlowTest do
   # Build a minimal ExGram.Cnt with the given extra map
   defp ctx(extra \\ %{}) do
     %ExGram.Cnt{
-      name: :test_bot,
       extra: extra,
+      name: :test_bot,
       update: %ExGram.Model.Update{update_id: 1}
     }
   end
 
   defp ctx_with_flow(flow, state \\ nil) do
-    ctx(%{fsm: %FSMState{flow: flow, state: state, data: %{}}})
+    ctx(%{fsm: %FSMState{data: %{}, flow: flow, state: state}})
   end
 
   describe "call/3 - flow name matching" do

@@ -15,10 +15,10 @@ defmodule ExGram.FSM.State do
   """
 
   @type t :: %__MODULE__{
+          data: map(),
           flow: atom() | nil,
-          state: atom() | nil,
-          data: map()
+          state: atom() | nil
         }
 
-  defstruct flow: nil, state: nil, data: %{}
+  defstruct data: %{}, flow: nil, state: nil
 end

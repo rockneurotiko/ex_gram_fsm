@@ -73,7 +73,7 @@ defmodule ExGram.FSM.Helpers do
     else
       flow_mod = Map.fetch!(flows_map, flow_name)
       default = flow_mod.default_state()
-      new_fsm = %State{flow: flow_name, state: default, data: %{}}
+      new_fsm = %State{data: %{}, flow: flow_name, state: default}
       do_update_context(context, new_fsm)
     end
   end
@@ -306,7 +306,7 @@ defmodule ExGram.FSM.Helpers do
   def clear_flow(context) do
     key = context.extra[:fsm_key]
     storage = context.extra[:fsm_storage]
-    new_fsm = %State{flow: nil, state: nil, data: %{}}
+    new_fsm = %State{data: %{}, flow: nil, state: nil}
 
     # Update in-memory
     new_extra = Map.put(context.extra, :fsm, new_fsm)

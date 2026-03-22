@@ -58,7 +58,7 @@ defmodule ExGram.FSM.Storage.ETSTest do
 
     test "returns the stored state after set_state" do
       key = {1, 1}
-      state = %State{flow: :registration, state: :get_name, data: %{name: "Alice"}}
+      state = %State{data: %{name: "Alice"}, flow: :registration, state: :get_name}
       ETS.set_state(@bot, key, state)
       assert ETS.get_state(@bot, key) == state
     end
@@ -67,9 +67,9 @@ defmodule ExGram.FSM.Storage.ETSTest do
       key = {100, 200}
 
       state = %State{
+        data: %{email: "bob@example.com", name: "Bob"},
         flow: :registration,
-        state: :confirm,
-        data: %{name: "Bob", email: "bob@example.com"}
+        state: :confirm
       }
 
       :ok = ETS.set_state(@bot, key, state)
@@ -77,7 +77,7 @@ defmodule ExGram.FSM.Storage.ETSTest do
       assert result == state
       assert result.flow == :registration
       assert result.state == :confirm
-      assert result.data == %{name: "Bob", email: "bob@example.com"}
+      assert result.data == %{email: "bob@example.com", name: "Bob"}
     end
 
     test "state for one bot does not bleed into another bot" do
@@ -109,7 +109,7 @@ defmodule ExGram.FSM.Storage.ETSTest do
     test "overwrites existing state" do
       key = {1, 1}
       ETS.set_state(@bot, key, %State{flow: :registration, state: :idle})
-      ETS.set_state(@bot, key, %State{flow: :registration, state: :get_name, data: %{x: 1}})
+      ETS.set_state(@bot, key, %State{data: %{x: 1}, flow: :registration, state: :get_name})
       result = ETS.get_state(@bot, key)
       assert result.state == :get_name
       assert result.data == %{x: 1}
@@ -124,7 +124,7 @@ defmodule ExGram.FSM.Storage.ETSTest do
     test "returns the data map for existing key" do
       key = {2, 2}
       data = %{name: "Charlie", step: 3}
-      ETS.set_state(@bot, key, %State{flow: :registration, state: :working, data: data})
+      ETS.set_state(@bot, key, %State{data: data, flow: :registration, state: :working})
       assert ETS.get_data(@bot, key) == data
     end
 
@@ -138,7 +138,7 @@ defmodule ExGram.FSM.Storage.ETSTest do
   describe "set_data/3" do
     test "replaces data, preserves state atom" do
       key = {1, 1}
-      ETS.set_state(@bot, key, %State{flow: :registration, state: :get_name, data: %{old: true}})
+      ETS.set_state(@bot, key, %State{data: %{old: true}, flow: :registration, state: :get_name})
       ETS.set_data(@bot, key, %{new: true})
       result = ETS.get_state(@bot, key)
       assert result.state == :get_name
@@ -157,10 +157,10 @@ defmodule ExGram.FSM.Storage.ETSTest do
   describe "update_data/3" do
     test "merges new_data into existing data" do
       key = {1, 1}
-      ETS.set_state(@bot, key, %State{flow: :registration, state: :get_email, data: %{name: "Dave"}})
+      ETS.set_state(@bot, key, %State{data: %{name: "Dave"}, flow: :registration, state: :get_email})
       ETS.update_data(@bot, key, %{email: "dave@example.com"})
       result = ETS.get_state(@bot, key)
-      assert result.data == %{name: "Dave", email: "dave@example.com"}
+      assert result.data == %{email: "dave@example.com", name: "Dave"}
     end
 
     test "new keys added, existing keys preserved" do

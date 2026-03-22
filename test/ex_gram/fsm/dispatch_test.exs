@@ -125,7 +125,7 @@ defmodule ExGram.FSM.DispatchTest do
   setup context do
     {bot_name, _} = ExGram.Test.start_bot(context, DispatchBot)
 
-    ExGram.Test.stub(:send_message, %{message_id: 1, chat: %{id: 0}, text: ""})
+    ExGram.Test.stub(:send_message, %{chat: %{id: 0}, message_id: 1, text: ""})
 
     on_exit(fn ->
       try do
@@ -142,18 +142,18 @@ defmodule ExGram.FSM.DispatchTest do
 
   defp build_update(user_id, chat_id, text) do
     %ExGram.Model.Update{
-      update_id: :erlang.unique_integer([:positive]),
       message: %ExGram.Model.Message{
-        message_id: :erlang.unique_integer([:positive]),
-        date: System.system_time(:second),
         chat: %ExGram.Model.Chat{id: chat_id, type: "private"},
+        date: System.system_time(:second),
         from: %ExGram.Model.User{
+          first_name: "TestUser",
           id: user_id,
-          is_bot: false,
-          first_name: "TestUser"
+          is_bot: false
         },
+        message_id: :erlang.unique_integer([:positive]),
         text: text
-      }
+      },
+      update_id: :erlang.unique_integer([:positive])
     }
   end
 

@@ -7,14 +7,14 @@ defmodule ExGram.FSM.Filter.StateTest do
   # Build a minimal ExGram.Cnt with the given extra map
   defp ctx(extra \\ %{}) do
     %ExGram.Cnt{
-      name: :test_bot,
       extra: extra,
+      name: :test_bot,
       update: %ExGram.Model.Update{update_id: 1}
     }
   end
 
   defp ctx_with_state(state, data \\ %{}) do
-    ctx(%{fsm: %FSMState{flow: :test_flow, state: state, data: data}})
+    ctx(%{fsm: %FSMState{data: data, flow: :test_flow, state: state}})
   end
 
   describe "call/3 with atom opts (state matching)" do

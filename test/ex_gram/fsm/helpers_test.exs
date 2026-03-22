@@ -78,29 +78,29 @@ defmodule ExGram.FSM.HelpersTest do
   end
 
   @flows_map %{
-    registration: RegistrationFlow,
-    settings: SettingsFlow,
     any_flow: AnyTransitionsFlow,
-    no_default: NoDefaultFlow
+    no_default: NoDefaultFlow,
+    registration: RegistrationFlow,
+    settings: SettingsFlow
   }
 
   # Build a minimal context for testing helpers
   defp build_context(flow, state \\ nil, data \\ %{}, opts \\ []) do
     %ExGram.Cnt{
-      name: @bot,
       extra: %{
-        fsm: %State{flow: flow, state: state, data: data},
-        fsm_key: Keyword.get(opts, :key, {123, 456}),
-        fsm_storage: Keyword.get(opts, :storage, ETS),
+        fsm: %State{data: data, flow: flow, state: state},
         fsm_flows: Keyword.get(opts, :flows, @flows_map),
-        fsm_on_invalid_transition: Keyword.get(opts, :on_invalid, :raise)
-      }
+        fsm_key: Keyword.get(opts, :key, {123, 456}),
+        fsm_on_invalid_transition: Keyword.get(opts, :on_invalid, :raise),
+        fsm_storage: Keyword.get(opts, :storage, ETS)
+      },
+      name: @bot
     }
   end
 
   # Build a context with no FSM info (middleware didn't run)
   defp bare_context do
-    %ExGram.Cnt{name: @bot, extra: %{}}
+    %ExGram.Cnt{extra: %{}, name: @bot}
   end
 
   # --- get_flow/1 ---
@@ -157,7 +157,7 @@ defmodule ExGram.FSM.HelpersTest do
     end
 
     test "returns the data map" do
-      data = %{name: "Alice", email: "alice@example.com"}
+      data = %{email: "alice@example.com", name: "Alice"}
       assert get_data(build_context(:registration, :confirm, data)) == data
     end
   end
@@ -333,14 +333,14 @@ defmodule ExGram.FSM.HelpersTest do
   describe "transition/2" do
     test "sets state when no flow is active and flows map is empty" do
       ctx = %ExGram.Cnt{
-        name: @bot,
         extra: %{
-          fsm: %State{flow: nil, state: nil, data: %{}},
-          fsm_key: {123, 456},
-          fsm_storage: ETS,
+          fsm: %State{data: %{}, flow: nil, state: nil},
           fsm_flows: %{},
-          fsm_on_invalid_transition: :raise
-        }
+          fsm_key: {123, 456},
+          fsm_on_invalid_transition: :raise,
+          fsm_storage: ETS
+        },
+        name: @bot
       }
 
       # No flows registered means no validation module → allow all
@@ -429,7 +429,7 @@ defmodule ExGram.FSM.HelpersTest do
     test "merges new data into existing data in context" do
       ctx = build_context(:registration, :get_name, %{name: "Alice"})
       result = update_data(ctx, %{email: "alice@example.com"})
-      assert get_data(result) == %{name: "Alice", email: "alice@example.com"}
+      assert get_data(result) == %{email: "alice@example.com", name: "Alice"}
     end
 
     test "overwrites existing keys" do
@@ -448,7 +448,7 @@ defmodule ExGram.FSM.HelpersTest do
       ctx = build_context(:registration, :get_name, %{name: "Alice"})
       update_data(ctx, %{email: "alice@example.com"})
       stored = ETS.get_state(@bot, {123, 456})
-      assert stored.data == %{name: "Alice", email: "alice@example.com"}
+      assert stored.data == %{email: "alice@example.com", name: "Alice"}
     end
 
     test "preserves flow and state atom" do
@@ -463,7 +463,7 @@ defmodule ExGram.FSM.HelpersTest do
 
   describe "clear_flow/1" do
     test "resets flow to nil, state to nil, and data to empty" do
-      ctx = build_context(:registration, :confirm, %{name: "Alice", email: "alice@example.com"})
+      ctx = build_context(:registration, :confirm, %{email: "alice@example.com", name: "Alice"})
       result = clear_flow(ctx)
       assert get_flow(result) == nil
       assert get_state(result) == nil
@@ -471,7 +471,7 @@ defmodule ExGram.FSM.HelpersTest do
     end
 
     test "removes entry from storage" do
-      ETS.set_state(@bot, {123, 456}, %State{flow: :registration, state: :confirm, data: %{x: 1}})
+      ETS.set_state(@bot, {123, 456}, %State{data: %{x: 1}, flow: :registration, state: :confirm})
       ctx = build_context(:registration, :confirm, %{x: 1})
       clear_flow(ctx)
       assert ETS.get_state(@bot, {123, 456}) == nil
@@ -500,7 +500,7 @@ defmodule ExGram.FSM.HelpersTest do
 
       assert get_flow(result) == :registration
       assert get_state(result) == :get_email
-      assert get_data(result) == %{started: true, name: "Alice"}
+      assert get_data(result) == %{name: "Alice", started: true}
     end
 
     test "clear_flow can be called after a full flow" do

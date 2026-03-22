@@ -11,15 +11,15 @@ defmodule ExGram.FSM.KeyTest do
     %ExGram.Cnt{
       extra: %{},
       update: %ExGram.Model.Update{
-        update_id: 1,
         message: %ExGram.Model.Message{
-          message_id: 1,
-          date: 0,
           chat: %ExGram.Model.Chat{id: chat_id, type: "group"},
-          from: %ExGram.Model.User{id: user_id, is_bot: false, first_name: "Test"},
-          text: "hello",
-          message_thread_id: thread_id
-        }
+          date: 0,
+          from: %ExGram.Model.User{first_name: "Test", id: user_id, is_bot: false},
+          message_id: 1,
+          message_thread_id: thread_id,
+          text: "hello"
+        },
+        update_id: 1
       }
     }
   end
@@ -30,19 +30,19 @@ defmodule ExGram.FSM.KeyTest do
     %ExGram.Cnt{
       extra: %{},
       update: %ExGram.Model.Update{
-        update_id: 2,
         callback_query: %ExGram.Model.CallbackQuery{
-          id: "cb1",
-          from: %ExGram.Model.User{id: user_id, is_bot: false, first_name: "Test"},
           data: "btn",
+          from: %ExGram.Model.User{first_name: "Test", id: user_id, is_bot: false},
+          id: "cb1",
           message: %ExGram.Model.Message{
-            message_id: 10,
-            date: 0,
             chat: %ExGram.Model.Chat{id: chat_id, type: "group"},
-            text: "Choose:",
-            message_thread_id: thread_id
+            date: 0,
+            message_id: 10,
+            message_thread_id: thread_id,
+            text: "Choose:"
           }
-        }
+        },
+        update_id: 2
       }
     }
   end
@@ -51,13 +51,13 @@ defmodule ExGram.FSM.KeyTest do
     %ExGram.Cnt{
       extra: %{},
       update: %ExGram.Model.Update{
-        update_id: 3,
         inline_query: %ExGram.Model.InlineQuery{
+          from: %ExGram.Model.User{first_name: "Test", id: user_id, is_bot: false},
           id: "iq1",
-          from: %ExGram.Model.User{id: user_id, is_bot: false, first_name: "Test"},
-          query: "test",
-          offset: ""
-        }
+          offset: "",
+          query: "test"
+        },
+        update_id: 3
       }
     }
   end
@@ -66,13 +66,13 @@ defmodule ExGram.FSM.KeyTest do
     %ExGram.Cnt{
       extra: %{},
       update: %ExGram.Model.Update{
-        update_id: 4,
         channel_post: %ExGram.Model.Message{
-          message_id: 1,
-          date: 0,
           chat: %ExGram.Model.Chat{id: chat_id, type: "channel"},
+          date: 0,
+          message_id: 1,
           text: "channel post"
-        }
+        },
+        update_id: 4
       }
     }
   end

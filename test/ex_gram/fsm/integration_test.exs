@@ -133,21 +133,21 @@ defmodule ExGram.FSM.IntegrationTest do
 
   defp build_message_cnt(user_id, chat_id, text) do
     %ExGram.Cnt{
-      name: :integration_test_bot,
       extra: %{},
+      name: :integration_test_bot,
       update: %ExGram.Model.Update{
-        update_id: :erlang.unique_integer([:positive]),
         message: %ExGram.Model.Message{
-          message_id: :erlang.unique_integer([:positive]),
-          date: System.system_time(:second),
           chat: %ExGram.Model.Chat{id: chat_id, type: "private"},
+          date: System.system_time(:second),
           from: %ExGram.Model.User{
+            first_name: "TestUser",
             id: user_id,
-            is_bot: false,
-            first_name: "TestUser"
+            is_bot: false
           },
+          message_id: :erlang.unique_integer([:positive]),
           text: text
-        }
+        },
+        update_id: :erlang.unique_integer([:positive])
       }
     }
   end
