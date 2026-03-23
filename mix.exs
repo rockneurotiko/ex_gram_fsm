@@ -29,8 +29,7 @@ defmodule ExGramFsm.MixProject do
 
   defp deps do
     [
-      # {:ex_gram, "~> 0.60"},
-      {:ex_gram, github: "rockneurotiko/ex_gram", branch: "on_bot_init", override: true},
+      {:ex_gram, "~> 0.64"},
       # ex_gram_router is not yet published on Hex; switch to `{:ex_gram_router, "~> 0.1.0"}` once released
       {:ex_gram_router, github: "rockneurotiko/ex_gram_router", optional: true},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
