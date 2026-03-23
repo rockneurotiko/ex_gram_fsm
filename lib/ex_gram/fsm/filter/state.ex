@@ -55,4 +55,9 @@ defmodule ExGram.FSM.Filter.State do
       _ -> false
     end
   end
+
+  @impl ExGram.Router.Filter
+  def format_filter(nil), do: "FSM.State(state=nil)"
+  def format_filter(expected_state) when is_atom(expected_state), do: "FSM.State(state=#{inspect(expected_state)})"
+  def format_filter({data_key, expected_value}), do: "FSM.State(data[#{inspect(data_key)}]=#{inspect(expected_value)})"
 end

@@ -55,4 +55,8 @@ defmodule ExGram.FSM.Filter.Flow do
       _ -> false
     end
   end
+
+  @impl ExGram.Router.Filter
+  def format_filter(nil), do: "FSM.Flow(nil)"
+  def format_filter(expected_flow) when is_atom(expected_flow), do: "FSM.Flow(name=#{inspect(expected_flow)})"
 end
