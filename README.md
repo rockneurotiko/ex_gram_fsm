@@ -7,7 +7,7 @@
 
 Finite State Machine / multi-flow conversation state management for [ExGram](https://hex.pm/packages/ex_gram) Telegram bots.
 
-Provides `use ExGram.FSM` with pluggable storage backends, named conversation flows, and runtime transition validation. Integrates with [ExGram.Router](https://github.com/rockneurotiko/ex_gram_router) via automatically-registered `:fsm_state` and `:fsm_flow` filter aliases.
+Provides `use ExGram.FSM` with pluggable storage backends, named conversation flows, and runtime transition validation. Integrates with [ExGram.Router](https://github.com/rockneurotiko/ex_gram_router) via automatically-registered `:fsm_state`, `:fsm_flow`, and `:fsm_in_flow` filter aliases.
 
 ## Installation
 
@@ -58,7 +58,7 @@ The `name:` option sets the flow's identifier atom. `defstates` declares valid s
 
 ### With ExGram.Router (recommended)
 
-Call `use ExGram.Router` before `use ExGram.FSM`. Both `:fsm_flow` and `:fsm_state` filter aliases are registered automatically.
+Call `use ExGram.Router` before `use ExGram.FSM`. The `:fsm_flow`, `:fsm_state`, and `:fsm_in_flow` filter aliases are registered automatically.
 
 ```elixir
 defmodule MyBot do
@@ -191,10 +191,10 @@ end
 
 One flow is active at a time per key (by default, per `{chat_id, user_id}` pair). The flow lifecycle is:
 
-1. **Start** — `start_flow(context, :flow_name)` activates a flow, sets its default state, clears data
-2. **Transition** — `transition(context, :next_state)` moves to the next step with validation
-3. **Accumulate** — `update_data(context, %{key: value})` persists form fields
-4. **End** — `clear_flow(context)` resets to no-flow state
+1. **Start** - `start_flow(context, :flow_name)` activates a flow, sets its default state, clears data
+2. **Transition** - `transition(context, :next_state)` moves to the next step with validation
+3. **Accumulate** - `update_data(context, %{key: value})` persists form fields
+4. **End** - `clear_flow(context)` resets to no-flow state
 
 Attempting to `start_flow` when a **different** flow is already active triggers the `on_invalid_transition` policy.
 
@@ -224,9 +224,9 @@ All helpers take and return `ExGram.Cnt.t()` for pipeline compatibility.
 
 ## Filters (ExGram.Router integration)
 
-When `use ExGram.Router` is detected on the same module, two filter aliases are registered automatically.
+When `use ExGram.Router` is detected on the same module, three filter aliases are registered automatically.
 
-### `:fsm_flow` — match on active flow
+### `:fsm_flow` - match on active flow
 
 ```elixir
 scope do
@@ -247,7 +247,7 @@ scope do
 end
 ```
 
-### `:fsm_state` — match on state or data
+### `:fsm_state` - match on state or data
 
 Match on state atom:
 
@@ -268,11 +268,23 @@ scope do
 end
 ```
 
-To register either filter manually (without `use ExGram.FSM`):
+### `:fsm_in_flow` - match when any flow is active
+
+Returns `true` whenever any FSM flow is active (i.e. `flow` is not `nil`). Useful as a catch-all guard to handle mid-conversation messages without checking which specific flow is running:
 
 ```elixir
-alias_filter ExGram.FSM.Filter.Flow,  as: :fsm_flow
-alias_filter ExGram.FSM.Filter.State, as: :fsm_state
+scope do
+  filter :fsm_in_flow
+  handle &MyBot.Handlers.in_flow_fallback/1
+end
+```
+
+To register any filter manually (without `use ExGram.FSM`):
+
+```elixir
+alias_filter ExGram.FSM.Filter.Flow,   as: :fsm_flow
+alias_filter ExGram.FSM.Filter.State,  as: :fsm_state
+alias_filter ExGram.FSM.Filter.InFlow, as: :fsm_in_flow
 ```
 
 ## Storage
@@ -282,7 +294,7 @@ The default backend is `ExGram.FSM.Storage.ETS` (in-memory, single-node). **Stat
 Storage backends are **bot-scoped**: every callback receives `bot_name` as its first argument so that
 a single backend can serve multiple bots without key collisions. The ETS implementation creates one
 named table per bot (`:"ex_gram_fsm_{bot_name}"`). The storage is initialized automatically at bot
-startup via the `ExGram.FSM.StorageInit` `ExGram.BotInit` hook — `use ExGram.FSM` registers it for
+startup via the `ExGram.FSM.StorageInit` `ExGram.BotInit` hook - `use ExGram.FSM` registers it for
 you.
 
 For production deployments, implement the `ExGram.FSM.Storage` behaviour:
@@ -375,7 +387,7 @@ use ExGram.FSM, key: MyApp.FSM.Key.Custom, flows: [...]
 
 ## License
 
-Beerware — see [LICENSE](LICENSE).
+Beerware: see [LICENSE](LICENSE).
 
 ## Links
 

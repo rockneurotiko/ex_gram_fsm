@@ -136,26 +136,22 @@ defmodule ExGram.FSM do
       # Import runtime helpers
 
       # Auto-register :fsm_state and :fsm_flow filter aliases if ExGram.Router is in use
-      if Module.has_attribute?(__MODULE__, :__exgram_filter_aliases__) do
-        existing = Module.get_attribute(__MODULE__, :__exgram_filter_aliases__)
+      ExGram.FSM.add_router_alias(__MODULE__, :fsm_state, ExGram.FSM.Filter.State)
+      ExGram.FSM.add_router_alias(__MODULE__, :fsm_flow, ExGram.FSM.Filter.Flow)
+      ExGram.FSM.add_router_alias(__MODULE__, :fsm_in_flow, ExGram.FSM.Filter.InFlow)
+    end
+  end
 
-        if !Keyword.has_key?(existing, :fsm_state) do
-          Module.put_attribute(
-            __MODULE__,
-            :__exgram_filter_aliases__,
-            [{:fsm_state, ExGram.FSM.Filter.State} | existing]
-          )
-        end
+  def add_router_alias(module, alias_name, filter_module) do
+    if Module.has_attribute?(module, :__exgram_filter_aliases__) do
+      existing = Module.get_attribute(module, :__exgram_filter_aliases__)
 
-        existing2 = Module.get_attribute(__MODULE__, :__exgram_filter_aliases__)
-
-        if !Keyword.has_key?(existing2, :fsm_flow) do
-          Module.put_attribute(
-            __MODULE__,
-            :__exgram_filter_aliases__,
-            [{:fsm_flow, ExGram.FSM.Filter.Flow} | existing2]
-          )
-        end
+      if !Keyword.has_key?(existing, alias_name) do
+        Module.put_attribute(
+          module,
+          :__exgram_filter_aliases__,
+          [{alias_name, filter_module} | existing]
+        )
       end
     end
   end

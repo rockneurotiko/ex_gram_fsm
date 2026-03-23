@@ -34,8 +34,8 @@ defmodule ExGram.FSM.Filter.Flow do
 
   ## Options
 
-  - `atom` — matches when `context.extra.fsm.flow == atom`
   - `nil` — matches when there is no active flow (`flow == nil`)
+  - `atom` — matches when `context.extra.fsm.flow == atom`
   """
 
   @behaviour ExGram.Router.Filter
@@ -49,6 +49,13 @@ defmodule ExGram.FSM.Filter.Flow do
   Returns `true` when the current FSM flow name equals `expected_flow`.
   """
   @spec call(term(), ExGram.Cnt.t(), atom() | nil) :: boolean()
+  def call(_update_info, context, nil) do
+    case context.extra do
+      %{fsm: %State{flow: flow}} when flow != nil -> false
+      _ -> true
+    end
+  end
+
   def call(_update_info, context, expected_flow) when is_atom(expected_flow) do
     case context.extra do
       %{fsm: %State{flow: ^expected_flow}} -> true
