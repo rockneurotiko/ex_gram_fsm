@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [v0.1.0]
+## [v0.1.0] - 2025-04-09
 
 ### Added
 
@@ -28,4 +28,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `ExGram.FSM.Key.ChatTopic` — `{chat_id, thread_id}` per forum topic scope
   - `ExGram.FSM.Key.ChatTopicUser` — `{chat_id, thread_id, user_id}` per-user per forum topic scope
 - `ExGram.FSM.Filter.Flow` and `ExGram.FSM.Filter.State` — ExGram.Router filter modules for routing by active flow and state
-- Automatic registration of `:fsm_flow` and `:fsm_state` filter aliases when `use ExGram.Router` is detected on the same module
+- Automatic registration of `:fsm_flow`, `:fsm_state`, and `:fsm_in_flow` filter aliases when `use ExGram.Router` is detected on the same module
+- `ExGram.FSM.Filter.InFlow` - ExGram.Router filter module for matching any active FSM flow
+
